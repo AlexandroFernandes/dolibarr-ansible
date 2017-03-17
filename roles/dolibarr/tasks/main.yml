@@ -1,0 +1,32 @@
+---
+- name: Baixa o Dolibarr
+  get_url:
+  url=http://www.dolibarr.org/files/dolibarr.tgz
+  dest=/tmp/dolibarr.tgz
+  validate_certs=no
+
+- name: Descompacta o Dolibarr
+  unarchive: src=/tmp.dolibarr.tgz dest=/var/www/ copy=no
+
+- name: Atualiza o site Apache padrao
+  lineinfile:
+  dest=/etc/apache2/sites-enabled/000-default.conf
+  regexp="(.)+DocumentRoot /var/www/html"
+  line="DocumentRoot /var/www/dolibarr"
+  notify:
+  - reinicia apache
+
+- name: Renomeia o arquivo de configuracao de exemplo
+  command: mv /var/www/dolibarr/wp-config-sample.php /var/www/dolibarr/wp-config.php creates=/var/www/dolibarr/wp-config.php
+
+- name: Atualiza a configuracao WordPress
+  lineinfile:
+  dest=/var/www/wordpress/wp-config.php
+  regexp="{{ item.regexp }}"
+  line="{{ item.line }}"
+  with_items:
+  - {'regexp': "define\\('DB_NAME', '(.)+'\\);", 'line': "define('DB_NAME', '{{wp_mysql_db}}');"}     
+  - {'regexp': "define\\('DB_USER', '(.)+'\\);", 'line': "define('DB_USER', '{{wp_mysql_user}}');"}     
+  - {'regexp': "define\\('DB_PASSWORD', '(.)+'\\);", 'line': "define('DB_PASSWORD', '{{wp_mysql_password}}');"}
+
+# tasks file for dolibarr

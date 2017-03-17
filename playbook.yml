@@ -1,0 +1,10 @@
+---
+- hosts: dolibarr
+  remote_user: alex
+  become: yes
+  roles:
+  - server
+  - php
+  - mysql
+  - dolibarr
+

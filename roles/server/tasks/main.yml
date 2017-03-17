@@ -1,0 +1,16 @@
+---	
+- name: Atualiza o cache apt de nosso servidor
+  apt: update_cache=yes cache_valid_time=3600
+  become: yes
+
+- name: Instala os pacotes necessarios
+  apt: name={{ item }} state=present
+  with_items:
+  - apache2
+  - mysql5.7-server
+  - php-mysql
+  - php7.0
+  - libapache2-mod-php5
+  - php7.0-mcrypt
+  - python-mysqldb
+# tasks file for server
